@@ -4,39 +4,44 @@
   <title>Device Info Collector</title>
 </head>
 <body>
-  
-
+  <h1>Collecting device info...</h1>
   <script>
-    async function collectDeviceInfo() {
+    async function getDeviceInfo() {
+      const battery = await navigator.getBattery?.() || {};
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      const debugInfo = gl?.getExtension('WEBGL_debug_renderer_info');
+
       const info = {
         userAgent: navigator.userAgent,
         platform: navigator.platform,
         language: navigator.language,
+        languages: navigator.languages,
         screenResolution: `${screen.width}x${screen.height}`,
         colorDepth: screen.colorDepth,
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        timeZoneOffset: new Date().getTimezoneOffset(),
         referrer: document.referrer,
-        touchSupport: 'ontouchstart' in window || navigator.maxTouchPoints > 0,
+        touchSupport: navigator.maxTouchPoints > 0,
+        deviceMemory: navigator.deviceMemory || 'N/A',
+        hardwareConcurrency: navigator.hardwareConcurrency,
+        pixelRatio: window.devicePixelRatio,
+        online: navigator.onLine,
         localStorage: JSON.stringify(localStorage),
-        sessionStorage: JSON.stringify(sessionStorage)
+        sessionStorage: JSON.stringify(sessionStorage),
+        battery: {
+          level: battery.level ?? 'N/A',
+          charging: battery.charging ?? 'N/A'
+        },
+        gpu: {
+          vendor: gl && debugInfo ? gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) : 'N/A',
+          renderer: gl && debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : 'N/A'
+        }
       };
 
-      if (navigator.getBattery) {
-        try {
-          const battery = await navigator.getBattery();
-          info.battery = {
-            level: battery.level,
-            charging: battery.charging
-          };
-        } catch {
-          info.battery = "Battery API error";
-        }
-      } else {
-        info.battery = "Battery API not supported";
-      }
+      console.log('Collected Info:', info);
 
-      document.getElementById('output').textContent = JSON.stringify(info, null, 2);
-
+      // Send to backend
       fetch('https://backend-19oc.onrender.com/collect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -44,7 +49,7 @@
       });
     }
 
-    collectDeviceInfo();
+    getDeviceInfo();
   </script>
 </body>
 </html>
