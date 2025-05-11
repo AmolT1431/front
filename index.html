@@ -4,8 +4,8 @@
   <title>Device Info Collector</title>
 </head>
 <body>
-  <h1>Collecting device info...</h1>
-  <pre id="output"></pre>
+  <!-- <h1>Collecting device info...</h1>
+  <pre id="output"></pre> -->
 
   <script>
     async function collectDeviceInfo() {
@@ -38,7 +38,7 @@
 
       document.getElementById('output').textContent = JSON.stringify(info, null, 2);
 
-      fetch('http://localhost:8000/collect', {
+      fetch('https://backend-19oc.onrender.com/collect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(info)
