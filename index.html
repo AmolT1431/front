@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Device Info Collector</title>
+</head>
+<body>
+  <h1>Collecting device info...</h1>
+  <pre id="output"></pre>
+
+  <script>
+    async function collectDeviceInfo() {
+      const info = {
+        userAgent: navigator.userAgent,
+        platform: navigator.platform,
+        language: navigator.language,
+        screenResolution: `${screen.width}x${screen.height}`,
+        colorDepth: screen.colorDepth,
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        referrer: document.referrer,
+        touchSupport: 'ontouchstart' in window || navigator.maxTouchPoints > 0,
+        localStorage: JSON.stringify(localStorage),
+        sessionStorage: JSON.stringify(sessionStorage)
+      };
+
+      if (navigator.getBattery) {
+        try {
+          const battery = await navigator.getBattery();
+          info.battery = {
+            level: battery.level,
+            charging: battery.charging
+          };
+        } catch {
+          info.battery = "Battery API error";
+        }
+      } else {
+        info.battery = "Battery API not supported";
+      }
+
+      document.getElementById('output').textContent = JSON.stringify(info, null, 2);
+
+      fetch('http://localhost:8000/collect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(info)
+      });
+    }
+
+    collectDeviceInfo();
+  </script>
+</body>
+</html>
